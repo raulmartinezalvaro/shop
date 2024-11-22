@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class OrderProduct extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'order_id', 
+        'product_id',
+        'quantity',
+        'price'
+    ];
+
+    protected $casts = [
+        'price' => 'float'
+    ];
+
+    //Calcula el total por pedido
+    public function calculateTotal()
+    {
+        return $this->quantity * $this->price;
+    }
+
+
+}
