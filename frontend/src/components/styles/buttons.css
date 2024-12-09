@@ -1,0 +1,161 @@
+    .normal-btn {
+        background-color: white;
+        color: #e75b3d;
+        border: none;
+        padding: 8px 12px;
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        text-decoration: none;
+    }
+
+    .normal-btn:hover {
+        background-color: #d94a32;
+        color: white;
+    }
+
+    .normal-btn2 {
+        background-color: white;
+        color: #5f9639;
+        border: none;
+        padding: 8px 12px;
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        text-decoration: none;
+    }
+
+    .normal-btn2:hover {
+        background-color: #5f9639;
+        color: white;
+    }
+
+    .payment-btn {
+        background-color: #5f9639;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        text-decoration: none;
+    }
+
+    .payment-btn:hover {
+        background-color: white;
+        color: #5f9639;
+    }
+
+    .delete-btn {
+        background-color: white;
+        color: #d53333;
+        border: none;
+        padding: 8px 12px;
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+  
+    .delete-btn:hover {
+        background-color: #d53333;
+        color: white;
+    }
+
+    select {
+        padding: 8px;
+        margin: 10px 0;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    select:hover{
+        padding: 8px;
+        margin: 10px 0;
+        font-size: 16px;
+        border: 1px solid #e75b3d;
+        border-radius: 4px;
+    }
+
+    .category-btn {
+        background-color: #f4f4f4;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px 0;
+        cursor: pointer;
+        font-weight: bold;
+        width: 100%;
+        text-align: left;
+        font-size: 1em;
+    }
+    
+    .product-list {
+        padding-left: 20px;
+        background-color: #fafafa;
+        border-left: 2px solid #ddd;
+        margin: 10px 0;
+    }
+    
+    .product-list ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    .product-list li {
+        margin: 5px 0;
+    }
+    
+    /* Botones de perfil de usuario y pedidos*/ 
+    .button-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
+    }
+
+
+    /* 1 columna en pantallas pequeñas */
+    @media (max-width: 480px) {
+        .button-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .button-card {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 15px;
+        background: #fff;
+        text-align: center;
+    }
+
+    .button-card:hover {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 15px;
+        background: #fff;
+        text-align: center;
+        border-color: #e75b3d;
+        cursor: pointer;
+    }
+    
+    .button-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    .button-image {
+        width: 100%;
+        max-height: 300px;
+        max-width: 300px;
+        object-fit: cover;
+        margin-bottom: 10px;
+        border-radius: 10px;
+    }

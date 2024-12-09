@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    volumes:
+      - ./backend:/code/backend
+      - ./frontend/public:/code/frontend/public
+    networks:
+      - red1
+    ports:
+      - "80:80"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    volumes:
+      - ./frontend:/code/frontend
+      - ./frontend/public:/code/frontend/public
+    networks:
+      - red1
+    ports:
+      - "3000:3000"
+
+networks:
+  red1:
+    external: true

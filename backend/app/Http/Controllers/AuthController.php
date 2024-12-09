@@ -38,9 +38,9 @@ class AuthController extends Controller
             'address' => $request->address,
             'CP' => $request->CP,
             'phone_number' => $request->phone_number,
-            'role' => 'user', // Podemos modificarlo con la función update
+            'role' => 'user',
             'profile_picture' => $request->profile_picture,
-            'status' => 'active', // Podemos modificarlo con la función update
+            'status' => 'active',
             'email' => $request->email,
             'password' => Hash::make($request->password), // Encriptación de la contraseña
         ]);
@@ -50,7 +50,7 @@ class AuthController extends Controller
     
         // Respondemos con el usuario y el token
         return response()->json([
-            'data' => $user->only(['id', 'name', 'email', 'role', 'status']), // Devuelve datos seleccionados del usuario
+            'data' => $user->only(['id', 'name', 'email', 'role', 'status']),
             'access_token' => $token,
             'token_type' => 'Bearer',
         ], 201); // Código 201 = Creación exitosa
@@ -72,7 +72,7 @@ class AuthController extends Controller
     
     
         return response()->json([
-            'message' => 'Hi ' . $user->name, // Añadida una clave para el mensaje
+            'message' => 'Hi ' . $user->name,
             'accessToken' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
@@ -82,7 +82,6 @@ class AuthController extends Controller
     public function logout (){
         //Borramos todos los tokens del user autenticado
         auth()->user()->tokens ()->delete();
-    
     
         return [
             'message' => 'You have successfully logged out and the token was successfully deleted'

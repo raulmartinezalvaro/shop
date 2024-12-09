@@ -25,8 +25,8 @@ class User extends Authenticatable
         'CP',
         'phone_number', 
         'role', //role para diferenciar a los administradores
-        'profile_picture', //status para usuarios activos o suspendidos
-        'status',
+        'profile_picture',
+        'status', //status para usuarios activos o suspendidos
         'email',
         'password',
     ];

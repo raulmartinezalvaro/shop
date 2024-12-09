@@ -1,31 +1,48 @@
-# Usa una imagen base de Node.js
-FROM node:14
-
-# Instala Python y otras dependencias necesarias
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-dev build-essential curl
+# Usa una imagen base de Node.js para el frontend
+FROM node:18 AS frontend
 
 # Establece el directorio de trabajo para el contenedor
-WORKDIR /code
-
-# Copia y configura el frontend
-COPY frontend/ frontend/
 WORKDIR /code/frontend
-RUN npm install
 
-# Copia y configura el backend
-WORKDIR /code
-COPY backend/ backend/
+# Instala dependencias
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
+#Es posible que haya que ejecutar este comando desde el container
+RUN npm install react-router-dom
+
+# Copia los archivos del frontend
+COPY frontend/ .
+
+# Expone el puerto 3000 para el servidor de desarrollo de React
+EXPOSE 3000
+
+# Comando por defecto para desarrollo del frontend
+CMD ["npm", "run", "start:nodemon"]
+
+# Usa una imagen base de PHP para el backend
+FROM php:8.1-fpm AS backend
+
+# Instala extensiones necesarias para Laravel
+RUN apt-get update && apt-get install -y \
+    libpq-dev zip unzip git && \
+    docker-php-ext-install pdo pdo_mysql && \
+    pecl install xdebug && \
+    docker-php-ext-enable xdebug
+
+# Establece el directorio de trabajo para el backend
 WORKDIR /code/backend
 
-# Asegúrate de que requirements.txt está presente
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Instala Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Configura los puertos que se expondrán
-EXPOSE 80 3000 4200 8001
+# Copia los archivos del backend
+COPY backend/ .
 
-# Comando para ejecutar tanto el backend como el frontend
-# Para el backend el parámetro "--reload" reinicia el servidor, para mostrar los cambios
-# Para el frontend el parámetro "start:dev" actualizará los cambios
-CMD sh -c "cd /code/backend && php artisan serve --host=0.0.0.0 --port=8000 & cd /code/frontend && npm start"
+# Instala las dependencias de Laravel
+RUN composer install
 
+# Expone el puerto 80 para el backend
+EXPOSE 80 4200 8001
+
+# Comando por defecto para desarrollo del backend
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]

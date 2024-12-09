@@ -1,0 +1,201 @@
+  /* Web entera */
+  .main-width {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /*Ficha de productos*/
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  /* Máximo 2 columnas en pantallas medianas */
+  @media (max-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* 1 columna en pantallas pequeñas */
+  @media (max-width: 480px) {
+      .product-grid {
+          grid-template-columns: 1fr;
+      }
+  }
+
+  .product-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    background: #fff;
+    text-align: center;
+  }
+
+  .product-card:hover {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    background: #fff;
+    text-align: center;
+    border-color: #e75b3d;
+    cursor: pointer;
+  }
+  
+  .product-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .product-image {
+    width: 100%;
+    max-height: 300px;
+    max-width: 300px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  /* Estos dos className los usamos en las fichas de producto del carrito*/
+  .product-card-left {
+    flex: 1;
+    max-width: 150px;
+  }
+
+  .product-card-right {
+    flex: 2; /* El resto del espacio será para el contenido textual */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .product-details {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+  
+  .product-price {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #e75b3d;
+  }
+  
+  .product-price del {
+    color: #999;
+    font-size: 1.0em;
+  }
+  
+  
+  .product-stock {
+    font-size: 0.9em;
+    font-weight: bold;
+  }
+  
+  .product-stock.in-stock {
+    color: green;
+  }
+  
+  .product-stock.low-stock {
+    color: orange;
+  }
+
+  .product-stock.out-of-stock {
+    color: red;
+  }
+  
+  /* Productor relacionados */
+  .related-products {
+    margin-top: 30px;
+  }
+  
+  .related-products-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .related-product-card {
+    width: 180px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    background: #fff;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  /*Enlace a los productos en categorias*/
+  .product-link {
+    color: #2a5285;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .category {
+    font-weight: bold;
+  }
+
+  /* Estilo para la tabla de productos */
+  .product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+
+  .product-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+
+  /* Tabla de categorías en CategoriesAndProducts*/
+  .category-container {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .category-header {
+      display: flex;
+      padding: 0.5rem;
+      cursor: pointer;
+  }
+
+  .category-header:hover {
+      background-color: #f5f5f5;
+  }
+
+  .category-name {
+      min-width: 30%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; /* Muestra "..." si es muy largo */
+  }
+
+
+  /* Estilo para las categorías, en la tabla de productos */
+  .category-badge {
+    display: inline-block;
+    background-color: #e0f7fa;
+    color: #00796b;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 5px;
+    font-size: 0.9em;
+  }
+
+  .no-category {
+    color: #d32f2f;
+    font-weight: bold;
+  }

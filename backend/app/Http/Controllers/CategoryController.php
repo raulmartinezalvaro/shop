@@ -14,17 +14,7 @@ class CategoryController extends Controller
         return response()->json($categories);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    // Almacenamos una nueva categoría
+    // Crear una nueva categoría
     public function store(Request $request)
     {
         // Primero validamos la entrada
@@ -45,10 +35,10 @@ class CategoryController extends Controller
         ], 201); // Código 201 = Solicitud procesada
     }
 
-    // Devuelve la categoría con el id pasado por parámetro
+    // Devuelve la categoría con el id pasado por parámetro, con sus productos relacionados
     public function show($id)
     {
-        $category = Category::find($id);
+        $category = Category::with('products')->find($id);
     
         // Si no existe la categoría con ese id
         if (!$category) {
@@ -57,17 +47,6 @@ class CategoryController extends Controller
     
         // Código 200 = Petición resuelta
         return response()->json($category, 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Category $category)
-    {
-        //
     }
 
     // Actualiza una categoría
@@ -117,4 +96,13 @@ class CategoryController extends Controller
             'category' => $category, // Devuelve los datos de la categoría (Antes de eliminarla)
         ], 200);
     }
+
+    // Obtiene todas las categorías, con sus productos
+    public function indexWithProducts()
+    {
+        $categories = Category::with('products')->get();
+
+        return response()->json($categories, 200);
+    }
+
 }

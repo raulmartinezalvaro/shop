@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -15,35 +18,35 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     // Almacenamos un nuevo producto
     public function store(Request $request)
     {
-        // Validar la entrada
+        // Primero validamos la entrada
         $validatedData = $request->validate([
             'SKU' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'price' => 'required|numeric',
             'stock' => 'nullable|integer',
-            'image' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'discount' => 'nullable|numeric',
         ]);
-
+    
+        // Si se ha subido una imagen
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            // Subir la imagen y obtener su ruta
+            // product_images es el disco que hemos configurado en \code\backend\config\filesystems.php
+            $imagePath = $request->file('image')->store('', 'product_images'); 
+        }
+        
+        // Si no se sube una imagen, asignamos una por defecto
+        $image = $imagePath ? '/images/products/' . basename($imagePath) : '/images/default.jpg';    
+    
         // Si no se rellena este campo se rellena con el valor default
         $stock = $request->input('stock', 0);
         $discount = $request->input('discount', 0);
-        $image = $request->input('image', 'default-image-url.png');
-
+    
         // Creamos el producto
         $product = Product::create([
             'SKU' => $validatedData['SKU'],
@@ -54,17 +57,18 @@ class ProductController extends Controller
             'image' => $image,
             'discount' => $discount,
         ]);
-
+    
         return response()->json([
             'message' => 'Producto creado exitosamente',
             'product' => $product,
         ], 201); // Código 201 = Solicitud procesada
     }
 
-    // Devuelve un producto con el id pasado por parámetro
+    // Devuelve un producto con el id pasado por parámetro, junto a sus categorías
     public function show($id)
     {
-        $product = Product::find($id);
+        //Recupera el producto con sus categorías
+        $product = Product::with('categories')->find($id);
     
         // Si no existe el producto con ese id
         if (!$product) {
@@ -75,29 +79,13 @@ class ProductController extends Controller
         return response()->json($product, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
     // Actualiza un producto
     public function update(Request $request, $id)
-    {
+    {  
         // Busca el producto manualmente
         $product = Product::find($id);
     
-        // Comprobamos si el producto existe
-        if (!$product) {
-            return response()->json(['message' => 'Producto no encontrado'], 404);
-        }
-    
-        // Primero validamos la entrada
+        // Validamos la entrada
         $validatedData = $request->validate([
             'SKU' => 'nullable|string|max:255',
             'name' => 'nullable|string|max:255',
@@ -106,20 +94,23 @@ class ProductController extends Controller
             'stock' => 'nullable|numeric',
             'category_id' => 'nullable|numeric',
             'image' => 'nullable|string|max:255',
+            //'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'discount' => 'nullable|numeric',
-        ]);
+        ]);        
     
-        // Guardar el precio anterior, por si tenemos que modificarlo en un pedido
+        // Guardar el precio y el descuento anterior, por si tenemos que modificarlo en un pedido
         $oldPrice = $product->price;
-
+        $oldDiscount = $product->discount;
+    
         // Asignamos los valores nuevos o mantenemos los existentes
         $product->update($validatedData);
-
-        // Si el precio cambió, actualizamos los pedidos relacionados
-        if ($request->has('price') && $product->price != $oldPrice) {
-        $this->updateOrdersWithNewPrice($product);
-    }
-
+    
+        // Si el precio o el descuento han cambiado, actualizamos los pedidos relacionados
+        if (($request->has('price') && $product->price != $oldPrice) ||
+            ($request->has('discount') && $product->discount != $oldDiscount)) {
+            $this->updateOrdersWithNewPrice($product);
+        }
+    
         return response()->json([
             'message' => 'Producto actualizado correctamente',
             'product' => $product,
@@ -132,11 +123,10 @@ class ProductController extends Controller
         // Buscar todas las órdenes relacionadas con el producto
         $orders = $product->orders;
 
-        // Asegurarnos de que $orders es iterable
+        // No hay órdenes relacionadas, no hacemos nada
         if (!$orders || $orders->isEmpty()) {
-            return; // No hay órdenes relacionadas, no hacemos nada
+            return; 
         }
-
 
         foreach ($orders as $order) {
             // Actualizar el precio en la tabla pivote
@@ -144,7 +134,7 @@ class ProductController extends Controller
                 'price' => $product->price - ($product->price * ($product->discount / 100)),
             ]);
     
-            // Recalcular y actualizar el total del pedido
+            // Recalcular y actualizar el total del pedido (Función en el controlador de Order)
             $order->updateOrderTotal();
         }
     }
@@ -172,43 +162,63 @@ class ProductController extends Controller
     }
 
     // Enlaza un producto a una categoría
-    public function attachCategories(Request $request, $productId)
+    public function attachCategories(Request $request)
     {
-        // Validamos que se envía un array de categorías y que estas existen
+        // Validamos que se envían el producto y las categorías
         $validatedData = $request->validate([
-            'category_ids' => 'required|array',
-            'category_ids.*' => 'exists:categories,id',
-        ]);
-
-        $product = Product::findOrFail($productId);
-
-        // Asignamos las categorías al producto
-        $product->categories()->attach($validatedData['category_ids']);
-
-        return response()->json([
-            'message' => 'Categorías agregadas correctamente al producto.',
-            'product' => $product->load('categories'),  // Devolvemos el producto, con sus categorías
-        ], 200);
-    }
-
-    // Rompe el enlace de un producto a una categoría
-    public function detachCategories(Request $request, $productId)
-    {
-        // Validamos que se envía un array de categorías y que estas existen
-        $validatedData = $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
             'category_ids' => 'required|array',
             'category_ids.*' => 'exists:categories,id',
         ]);
     
-        $product = Product::findOrFail($productId);
+        $product = Product::findOrFail($validatedData['product_id']);
+        $categories = Category::whereIn('id', $validatedData['category_ids'])->get();
+    
+        // Asociamos las categorías al producto
+        $syncData = [];
+        foreach ($categories as $category) {
+            $syncData[$category->id] = [
+                'product_name' => $product->name,
+                'category_name' => $category->name,
+            ];
+        }
+    
+        // Usamos attach para evitar duplicados
+        $product->categories()->attach($syncData);
+    
+        return response()->json([
+            'message' => 'Categorías agregadas correctamente al producto.',
+            'product' => $product->load('categories'),
+        ], 200);
+    }
+
+    // Rompe el enlace de un producto a una categoría
+    public function detachCategories(Request $request)
+    {
+        // Validamos que se envían el producto y las categorías
+        $validatedData = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'exists:categories,id',
+        ]);
+    
+        $product = Product::findOrFail($validatedData['product_id']);
     
         // Eliminamos las categorías del producto
         $product->categories()->detach($validatedData['category_ids']);
     
         return response()->json([
             'message' => 'Categorías eliminadas correctamente del producto.',
-            'product' => $product->load('categories'),  // Devolvemos el producto, con sus categorías restantes
+            'product' => $product->load('categories'), // Devolvemos el producto con sus categorías actualizadas
         ], 200);
+    }
+
+    // Obtiene todas las categorías, con sus productos
+    public function indexWithCategories()
+    {
+        $produtcs = Product::with('categories')->get();
+
+        return response()->json($produtcs, 200);
     }
 
 }

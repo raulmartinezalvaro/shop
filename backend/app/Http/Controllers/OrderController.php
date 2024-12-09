@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -15,17 +16,30 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    // Listamos todos los pedidos de un usuario
+    public function userOrders(Request $request)
     {
-        //
+        // Validar que se pase el ID del usuario
+        $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id'
+        ]);
+    
+        // Obtener los pedidos del usuario, incluyendo los productos asociados
+        $orders = Order::with(['products' => function ($query) {
+            $query->select('products.id', 'products.name', 'products.image', 'order_product.quantity', 'order_product.price');
+        }])
+        ->where('user_id', $validatedData['user_id'])
+        ->get();
+    
+        // Si el usuario no tiene pedidos
+        // if ($orders->isEmpty()) {
+        //     return response()->json(['message' => 'No orders found for this user'], 404);
+        // }
+    
+        return response()->json($orders, 200);
     }
 
-    // Almacenamos un pedido
+    // Creación de un pedido
     public function store(Request $request)
     {
         // Primero validamos la entrada
@@ -37,7 +51,7 @@ class OrderController extends Controller
         ]);
 
         // Si no se rellena este campo se rellena con el valor default
-        $status = $request->input('status', 'pending');
+        $status = $request->input('status', 'pendiente de gestión');
 
         // Creamos el pedido
         $order = Order::create([ 
@@ -67,24 +81,13 @@ class OrderController extends Controller
         return response()->json($order, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Order  $order
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
-
     // Actualiza un pedido
     public function update(Request $request, Order $order)
     {
         // Primero validamos la entrada
         $validatedData = $request->validate([
             'user_id' => 'nullable|exists:users,id|string|max:255',
-            'status' => 'nullable|in:pending,shipped,delivered,cancelled',
+            'status' => 'nullable|in:carrito,pendiente de gestión,pendiente de envío,enviado,entregado,cancelado',
             'total_price' => 'nullable|numeric',
             'shipping_address' => 'nullable|string|max:255',
         ]);
@@ -127,7 +130,62 @@ class OrderController extends Controller
         ], 200);
     }
 
-    // Añade un producto a un pedido
+    // Devuelve el pedido con el id pasado por parámetro, añadiendo la tabla pivote order_product 
+    public function cart($id)
+    {
+        // Buscar el pedido por su ID, incluyendo los productos asociados y la tabla pivote
+        $order = Order::with(['products' => function ($query) {
+            $query->select('products.id', 'products.name', 'products.image', 'order_product.quantity', 'order_product.price');
+        }])->find($id);
+    
+        // Si no existe el pedido con ese ID
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+    
+        // Devolver la respuesta con el pedido y sus productos
+        return response()->json($order, 200);
+    }
+    
+    
+
+    // Crea un pedido con el estado carrito, si el usuario logeado no lo tiene
+    public function getOrCreateCart(Request $request)
+    {
+        // Primero validamos la entrada
+        $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        // Obtenemos el usuario con el id proporcionado
+        $user = User::find($validatedData['user_id']);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Usamos la dirección del usuario
+        $shippingAddress = $validatedData['shipping_address'] ?? $user->address;
+
+        // Buscamos un pedido en estado "carrito" para este usuario
+        $order = Order::where('user_id', $validatedData['user_id'])
+                    ->where('status', 'carrito')
+                    ->first();
+
+        // Si no existe un pedido pendiente, creamos uno nuevo
+        if (!$order) {
+            $order = Order::create([
+                'user_id' => $validatedData['user_id'],
+                'status' => 'carrito',
+                'total_price' => 0,
+                'shipping_address' => $shippingAddress,
+            ]);
+        }
+
+        return response()->json($order);
+    }
+
+
+    // Añade un producto a un pedido, valorando el stock y el descuento
     public function attachProduct(Request $request, $orderId)
     {
         // Validación de entrada
@@ -148,6 +206,11 @@ class OrderController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
+        // Verificar si hay suficiente stock
+        if ($product->stock < $validatedData['quantity']) {
+            return response()->json(['message' => 'Not enough stock'], 400);
+        }
+
         // Calculamos el descuento si lo hay
         $price = $product->price - ($product->price * ($product->discount / 100));
 
@@ -160,8 +223,12 @@ class OrderController extends Controller
         // Agregar el producto a la orden usando la tabla pivote (OrderProduct)
         $order->products()->attach($validatedData['product_id'], [
             'quantity' => $validatedData['quantity'],
-            'price' => $product->price
+            'price' => $price
         ]);
+
+        // Reducir el stock del producto
+        $product->stock -= $validatedData['quantity'];
+        $product->save();
 
         // Recalcular el total del pedido (Función definida en el modelo Order)
         $order->updateOrderTotal();
@@ -169,6 +236,7 @@ class OrderController extends Controller
         return response()->json(['message' => 'Product added to order'], 200);
     }
 
+    // Quita un producto de un pedido, , valorando el stock
     public function detachProduct($orderId, $productId)
     {
         // Buscar el pedido
@@ -183,8 +251,18 @@ class OrderController extends Controller
             return response()->json(['message' => 'Product not found in this order'], 404);
         }
 
+        // Obtener la cantidad del producto en el pedido
+        $quantity = $existingProduct->pivot->quantity;
+
         // Eliminar el producto de la orden
         $order->products()->detach($productId);
+
+        // Aumentar el stock del producto
+        $product = Product::find($productId);
+        if ($product) {
+            $product->stock += $quantity;
+            $product->save();
+        }
 
         // Recalcular el total del pedido (Función definida en el modelo Order)
         $order->updateOrderTotal();

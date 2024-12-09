@@ -24,13 +24,15 @@ class Product extends Model
         'stock' => 'integer', 
         'discount' => 'float',
     ];
-
-    // Un producto puede tener varias categorías
+    
     public function categories()
     {
         /*Usamos belongsToMany porque es muchos a muchos, si fuese de uno a muchos sería hasMany */
-        return $this->belongsToMany(Category::class, 'category_product');
+        return $this->belongsToMany(Category::class)
+                    ->withPivot('product_name', 'category_name')
+                    ->withTimestamps();
     }
+
 
     // Un tipo de producto puede estar en varios pedidos
     public function orders()

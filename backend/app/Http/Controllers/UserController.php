@@ -11,18 +11,12 @@ class UserController extends Controller
     // Listamos todos los usuarios
     public function index()
     {
-        $users= User::all();
-        return response()->json($users);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        // Recupera los usuarios con sus pedidos
+        $users = User::with(['orders' => function ($query) {
+            $query->select('id', 'user_id', 'status', 'total_price');
+        }])->get();
+    
+        return response()->json($users, 200);
     }
 
     // Añadimos un nuevo usuario
@@ -67,7 +61,7 @@ class UserController extends Controller
     // Devolvemos el user con el id, que hemos pasado por parámetro
     public function show($id)
     {
-        $user = User::find($id);
+        $user = User::with('orders')->find($id);
     
         // Si no existe el user con ese id
         if (!$user) {
@@ -78,32 +72,21 @@ class UserController extends Controller
         return response()->json($user, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
     // Actualiza un usuario
     public function update(Request $request, User $user)
     {
         // Primero validamos la entrada
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'surname' => 'nullable|string|max:255',
             'surname2' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'CP' => 'nullable|string|max:10',
             'phone_number' => 'nullable|string|max:15',
-            'role' => 'required|string|max:50',
+            'role' => 'nullable|string|max:50',
             'profile_picture' => 'nullable|string|max:255',
-            'status' => 'required|in:active,suspended',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id, // No se puede cambiar a un correo ya existente
+            'status' => 'nullable|in:active,suspended',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id, // No se puede cambiar a un correo ya existente
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 

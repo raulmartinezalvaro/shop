@@ -1,0 +1,36 @@
+/* Botones de perfil de usuario y pedidos */
+.order-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Tarjeta de pedido */
+.order-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    border-color: #e75b3d;
+}
+
+/* Productos dentro de cada pedido */
+.order-card ul {
+    margin-top: 10px;
+    padding: 0;
+}
+
+.order-card img {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}

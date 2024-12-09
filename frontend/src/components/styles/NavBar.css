@@ -1,0 +1,55 @@
+/* Estilos para la barra de navegación */
+  .navbar {
+    background-color: #e75b3d;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .navbar-title {
+    /*Al ser un enlace hay que quitarle la decoración*/
+    text-decoration: none;
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+  
+  /* Contenedor para los botones (login, register, logout) */
+  .navbar-btns {
+    display: flex;
+    align-items: center; /* Centra verticalmente */
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .navbar-btn {
+    background-color: white;
+    color: #e75b3d;
+    border: none;
+    padding: 8px 12px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .navbar-btn:hover {
+    background-color: #d94a32;
+    color: white;
+  }
+  
+  .navbar-icon {
+    margin-left: 10px;
+  }
+  
+  .icons {
+    width: 24px;
+    height: 24px;
+  }  
+  
+  .icons:hover {
+    transform: scale(1.1);
+  }
