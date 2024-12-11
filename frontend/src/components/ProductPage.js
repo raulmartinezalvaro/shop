@@ -103,56 +103,60 @@ const ProductPage = ({ accessToken, userID }) => {
 
     return (
         <div className="main-width">
-            <h1>{product.name}</h1>
-            <img src={product.image} alt={`Imagen de ${product.name}`} className="product-image"/>
-            <p>{product.description}</p>
-            
-            <span className={`product-stock ${product.stock === 0 ? 'Agotado' : ''}`}>
-                          {product.stock < 5 ? 'Pocas existencias' : ''}
-            </span>
+            <div className="product-container">
+                <div className="product-main">
+                    <img src={product.image} alt={`Imagen de ${product.name}`} className="product-image"/>
+                    <div className="product-info">
+                        <h1>{product.name}</h1>
+                        <p>{product.description}</p>
+                        
+                        <span className={`product-stock ${product.stock === 0 ? 'Agotado' : ''}`}>
+                                    {product.stock < 5 ? 'Pocas existencias' : ''}
+                        </span>
 
 
-            <div className="product-details">
-                      {/* Si hay descuento : Si no hay descuento */}
-                      <span className="product-price">
-                          {product.discount > 0
-                              ? (
-                                  <>
-                                      <del>{product.price}€</del>{' '}
-                                      {(product.price * (1 - product.discount / 100)).toFixed(2)}€
-                                  </>
-                              ) : (
-                                  <>{product.price.toFixed(2)}€</>
-                              )}
-                      </span>
-                      </div>
+                        <div className="product-details">
+                                {/* Si hay descuento : Si no hay descuento */}
+                                <span className="product-price">
+                                    {product.discount > 0
+                                        ? (
+                                            <>
+                                                <del>{product.price}€</del>{' '}
+                                                {(product.price * (1 - product.discount / 100)).toFixed(2)}€
+                                            </>
+                                        ) : (
+                                            <>{product.price.toFixed(2)}€</>
+                                        )}
+                                </span>
+                                </div>
 
 
-            {/* Si hemos iniciado sesión podemos añadir productos al carrito */}
-            {accessToken && (
-                <>
-                {/* Selección de cantidad */}
-                <div>
-                    <label>Cantidad: </label>
-                    <select 
-                        value={quantity} 
-                        onChange={(e) => setQuantity(e.target.value)} 
-                        disabled={product.stock === 0}
-                    >
-                        {/* Si el stock es mayor que 5, el máximo será 5, sino será el stock disponible */}
-                        {[...Array(Math.min(5, product.stock)).keys()].map(i => (
-                            <option key={i} value={i + 1}>{`${i + 1}`}</option>
-                        ))}
-                    </select>
+                        {/* Si hemos iniciado sesión podemos añadir productos al carrito */}
+                        {accessToken && (
+                            <>
+                            {/* Selección de cantidad */}
+                            <div>
+                                <label>Cantidad: </label>
+                                <select 
+                                    value={quantity} 
+                                    onChange={(e) => setQuantity(e.target.value)} 
+                                    disabled={product.stock === 0}
+                                >
+                                    {/* Si el stock es mayor que 5, el máximo será 5, sino será el stock disponible */}
+                                    {[...Array(Math.min(5, product.stock)).keys()].map(i => (
+                                        <option key={i} value={i + 1}>{`${i + 1}`}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Botón para añadir al carrito */}
+                            <button onClick={handleAddToCart} className="normal-btn">
+                                Añadir al carrito
+                            </button>
+                            </>
+                        )}
+                    </div>
                 </div>
-
-                {/* Botón para añadir al carrito */}
-                <button onClick={handleAddToCart} className="normal-btn">
-                    Añadir al carrito
-                </button>
-                </>
-            )}
-
             <div className="related-products">
                 <h3>Productos relacionados</h3>
                 <div className="related-products-list">
@@ -177,8 +181,7 @@ const ProductPage = ({ accessToken, userID }) => {
                     ))}
                 </div>
             </div>
-
-
+        </div>
         </div>
     );
 };

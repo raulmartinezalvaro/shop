@@ -8,7 +8,7 @@
   /*Ficha de productos*/
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     padding: 20px;
   }
@@ -16,7 +16,7 @@
   /* Máximo 2 columnas en pantallas medianas */
   @media (max-width: 768px) {
     .product-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
   }
 
@@ -109,25 +109,43 @@
     color: red;
   }
   
+  /* Página de producto */
+  .product-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 20px;
+  }
+
+  .product-main {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
   /* Productor relacionados */
   .related-products {
     margin-top: 30px;
   }
   
   .related-products-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
   }
   
   .related-product-card {
-    width: 180px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px;
-    background: #fff;
     text-align: center;
-    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .related-product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   /*Enlace a los productos en categorias*/
