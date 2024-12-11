@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom'
 import DetachProduct from './DetachProduct';
 import './styles/ProductsAndCategories.css'
+import './styles/Cart.css'
 import './styles/buttons.css'
 
 const endpoint = 'http://127.0.0.1:80/api';
@@ -77,44 +78,61 @@ const Cart = ({ accessToken, userID }) => {
     }
 
     return (
-        <div className="main-width">
-            <h2>Mi carrito</h2>
-            {cart.products && cart.products.length > 0 ? (
-                <div className="product-grid">
-                    {cart.products.map(product => (
-                        <div key={product.id} className="product-card">
-                        <Link to={`/product/${product.id}`} className="product-card-link">
-                            <img
-                                src={product.image}
-                                alt={product.name}
-                                className="product-image"
-                            />
-                            <h3>{product.name}</h3>
-                            <p>Cantidad: {product.pivot.quantity}</p>
-                            <p>Precio por unidad: {product.pivot.price}€</p>
-                            <p>Total: {(product.pivot.quantity * product.pivot.price).toFixed(2)}€</p>
-                        </Link>
-                        <DetachProduct
-                            accessToken={accessToken}
-                            orderID={cart.id}
-                            productID={product.id}
-                            onDetach={handleDetach}
-                        />
-                    </div>
-                    ))}
+    <div className="main-width">
+        <h2 style={{color: "#e75b3d"}} >Mi carrito</h2>
+        {cart.products && cart.products.length > 0 ? (
+            <div className="cart-container">
+                <table className="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Unidades</th>
+                            <th>Precio por unidad</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {cart.products.map((product) => (
+                            <tr key={product.id}>
+                                <td>
+                                    <div className="cart-product-info">
+                                        <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            className="cart-product-image"
+                                        />
+                                        <Link to={`/product/${product.id}`} className="product-link">
+                                            {product.name}
+                                        </Link>
+                                    </div>
+                                </td>
+                                <td>{product.pivot.quantity}</td>
+                                <td>{product.pivot.price}€</td>
+                                <td>{(product.pivot.quantity * product.pivot.price).toFixed(2)}€</td>
+                                <td>
+                                    <DetachProduct
+                                        accessToken={accessToken}
+                                        orderID={cart.id}
+                                        productID={product.id}
+                                        onDetach={handleDetach}
+                                    />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                <div className="cart-summary">
+                    <p>Total del carrito: {cart.total_price.toFixed(2)}€</p>
+                    <Link to={`/payment/${cart.id}`} className="payment-btn">
+                        Proceder a pago
+                    </Link>
                 </div>
-            ) : (
-                <p>La cesta está vacía.</p>
-            )}
-            {cart.products && cart.products.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <p>Total del carrito: {cart.total_price.toFixed(2)}€</p>
-                <Link to={`/payment/${cart.id}`} className="payment-btn">
-                    Proceder a pago
-                </Link>
             </div>
+        ) : (
+            <p>La cesta está vacía.</p>
         )}
-        </div>
+    </div>
     );
 };
 

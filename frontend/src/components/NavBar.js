@@ -25,7 +25,7 @@ const NavBar = ({ accessToken, setAccessToken, userID, setUserID, setUserName, s
         setUserName(null); 
         setUserRole(null);
 
-        // Limpiamos los localStorage
+        // Limpiamos el localStorage
         localStorage.removeItem('userID');
         localStorage.removeItem('userName');
         localStorage.removeItem('userRole');
@@ -39,7 +39,7 @@ const NavBar = ({ accessToken, setAccessToken, userID, setUserID, setUserName, s
   return (
     <nav className="navbar">
       <Link to="/" className='navbar-title'>
-        Mi tienda
+        Mi tienda online
       </Link>
 
       {/* Si hay un accessToken : sino tenemos accessToken*/}

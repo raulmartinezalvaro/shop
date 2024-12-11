@@ -27,16 +27,16 @@ const HomePage = ({ } ) => {
   const fetchProductsAndCategories = async () => {
     try {
       const productsResponse = await axios.get(`${endpoint}/productsWithCategories`);
-      setProducts(productsResponse.data);
-      setFilteredProducts(productsResponse.data); // Inicialmente mostramos todos los productos
+        setProducts(productsResponse.data);
+        setFilteredProducts(productsResponse.data); // Inicialmente mostramos todos los productos
 
       const categoriesResponse = await axios.get(`${endpoint}/categories`);
-      setCategories(categoriesResponse.data);
+        setCategories(categoriesResponse.data);
     } catch (error) {
-      console.error('Error al cargar productos o categorías:', error);
-      alert('Hubo un problema al cargar los productos o las categorías. Intenta de nuevo más tarde.');
+        console.error('Error al cargar productos o categorías:', error);
+        alert('Hubo un problema al cargar los productos o las categorías. Intenta de nuevo más tarde.');
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 

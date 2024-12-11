@@ -11,7 +11,9 @@ const DetachProduct = ({ accessToken, orderID, productID, onDetach }) => {
         }
 
         try {
-            await axios.put(`${endpoint}/${orderID}/detachProduct/${productID}`, {
+            await axios.put(`${endpoint}/${orderID}/detachProduct/${productID}`,
+                {},
+                {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },

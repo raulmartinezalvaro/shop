@@ -88,10 +88,14 @@ const Payment = ({ accessToken, userID }) => {
 
     return (
         <div className="main-width">
-            <p><strong>Para completar el pago, por favor realice el siguiente proceso:</strong></p>
+            <p><strong>Para completar el pago, puede realizarlo por bizum o transferencia bancaria:</strong></p>
             <ul>
-                <li>Bizum: xxx xxx xxx</li>
-                <li>Transferencia bancaria a: xxxxxxxxxx</li>
+                <p><strong>Bizum:</strong> xxx xxx xxx</p>
+                <strong>Transferencia bancaria:</strong>
+                <ul>
+                    <li><strong>IBAN:</strong> ESXX XXXX XXXX XXXX XXXX XXXX</li>
+                    <li><strong>Beneficiario:</strong> Nombre de la empresa</li>
+                </ul>
             </ul>
             <p>Recuerde indicar en el asunto del pago el ID de su pedido: <strong>{cart.id}</strong></p>
             <p><strong>Total del carrito: </strong>{cart.total_price.toFixed(2)}€</p>

@@ -213,7 +213,7 @@ class ProductController extends Controller
         ], 200);
     }
 
-    // Obtiene todas las categorías, con sus productos
+    // Obtiene todas las productos, con sus categorías
     public function indexWithCategories()
     {
         $produtcs = Product::with('categories')->get();
